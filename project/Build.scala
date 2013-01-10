@@ -2,23 +2,19 @@ import sbt._
 import Keys._
 
 object DeliteBuild extends Build {
-  val virtualization_lms_core = "EPFL" % "lms_2.10" % "0.2"
+  //val virtualization_lms_core = "EPFL" % "lms_2.10" % "0.2"
   
-  // FIXME: custom-built scalatest
-  val dropboxScalaTestRepo = "Dropbox" at "http://dl.dropbox.com/u/12870350/scala-virtualized"
-
-  val scalatestCompile = "org.scalatest" % "scalatest_2.10.0-virtualized-SNAPSHOT" % "1.6.1-SNAPSHOT" 
+  val scalatestCompile = "org.scalatest" % "scalatest_2.10" % "2.0.M5b"
   val scalatest = scalatestCompile % "test" 
 
-  val virtScala = "2.10.0-M1-virtualized" //"2.10.0-virtualized-SNAPSHOT"
+  val virtScala = "2.10.0"
   val virtBuildSettingsBase = Defaults.defaultSettings ++ Seq(
     resolvers += ScalaToolsSnapshots, 
-    resolvers += dropboxScalaTestRepo,
     organization := "stanford-ppl",
     scalaOrganization := "org.scala-lang",
     scalaVersion := virtScala,
     publishArtifact in (Compile, packageDoc) := false,
-    libraryDependencies += virtualization_lms_core,
+    //libraryDependencies += virtualization_lms_core,
     // needed for scala.tools, which is apparently not included in sbt's built in version
     libraryDependencies += "org.scala-lang" % "scala-library" % virtScala,
     libraryDependencies += "org.scala-lang" % "scala-compiler" % virtScala,
@@ -26,8 +22,8 @@ object DeliteBuild extends Build {
     libraryDependencies += "org.apache.commons" % "commons-math" % "2.2",
     // used in delitec to access jars
     retrieveManaged := true,
-    scalacOptions += "-Yno-generic-signatures",
-    scalacOptions += "-Yvirtualize"
+    scalacOptions += "-Yno-generic-signatures"
+    //scalacOptions += "-Yvirtualize"
   )
 
   val virtBuildSettings = virtBuildSettingsBase ++ Seq(
