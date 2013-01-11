@@ -1,4 +1,4 @@
-Delite 2.0
+DeliteZero
 ==========
 
-[Setup instructions](http://stanford-ppl.github.com/Delite/source.html)
+This is a plain library version of Delite: zero staging, zero optimizations -- not recommended for actual use :)
