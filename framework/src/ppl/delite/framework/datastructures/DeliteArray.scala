@@ -3,7 +3,10 @@ package ppl.delite.framework.datastructures
 import scala.reflect.ClassTag
 
 
-trait DeliteCollection[T]
+trait DeliteCollection[T] {
+
+}
+
 
 trait DeliteArray[T] extends DeliteCollection[T] {
 
@@ -31,3 +34,5 @@ object DeliteArray {
   def apply[T:ClassTag](length: Int) = new DeliteArray[T] { val darray = new Array[T](length); val ct = implicitly[ClassTag[T]] }
   //def apply[T:Manifest](length: Rep[Int])(f: Rep[Int] => Rep[T]) = darray_fromFunction(length, f)
 }
+
+

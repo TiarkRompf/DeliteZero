@@ -11,7 +11,7 @@ object DeliteBuild extends Build {
   val virtBuildSettingsBase = Defaults.defaultSettings ++ Seq(
     resolvers += ScalaToolsSnapshots, 
     organization := "stanford-ppl",
-    scalaOrganization := "org.scala-lang",
+    scalaOrganization := "org.scala-lang.virtualized",
     scalaVersion := virtScala,
     publishArtifact in (Compile, packageDoc) := false,
     //libraryDependencies += virtualization_lms_core,
