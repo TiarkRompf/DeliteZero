@@ -252,7 +252,7 @@ trait DeliteIfThenElse extends DeliteTestModule with OptiMLApplication {
   def main() = {
 
     val y = Vector.rand(10)
-    if (y(0) == false){
+    if (y(0) == false){ // TR: type mismatch?
       var x0 = 17
       collect(x0 == 17)
     }

@@ -9,10 +9,9 @@ object application {
   trait ApplicationOps
 }
 
-
 trait OptiML extends DeliteApplication { this: OptiMLApplication =>
 
-  val Rect: RectCompanion
+  val Rect: RectCompanion = ???
   abstract class RectCompanion {
     def apply(x:Int,y:Int,w:Int,h:Int): Rect
   }
