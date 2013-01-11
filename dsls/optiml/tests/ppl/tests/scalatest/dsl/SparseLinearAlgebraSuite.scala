@@ -1,7 +1,6 @@
 package ppl.tests.scalatest.dsl.optiml
 
 import ppl.dsl.optiml._
-import scala.virtualization.lms.util.OverloadHack
 import ppl.tests.scalatest._
 
 /**

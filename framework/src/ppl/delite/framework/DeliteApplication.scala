@@ -4,17 +4,13 @@ package ppl.delite.framework
 object Config
 object Util
 
-trait Interfaces extends Base {
-  type Interface[T] = T
-}
-
-
-
+trait Interfaces extends Base
 trait FunctionBlocksExp extends Base
 trait Variables extends Base
 trait Base extends OverloadHack {
   type Rep[T] = T
   type Var[T] = T
+  type Interface[T] = T
   class Def[T]
   def readVar[T](x:T):T = x
   def unit[T](x:T):T = x

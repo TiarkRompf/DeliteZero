@@ -1,7 +1,6 @@
 package ppl.tests.scalatest.dsl.optiml
 
 import ppl.dsl.optiml._
-import scala.virtualization.lms.util.OverloadHack
 import ppl.tests.scalatest._
 
 object SimpleVectorArithmeticRunner extends DeliteTestRunner with OptiMLApplicationRunner with SimpleVectorArithmetic
@@ -99,7 +98,7 @@ trait CombinedVecMatArithmetic extends DeliteTestModule with LinearAlgebraTestsC
   }
 }
 
-trait LinearAlgebraTestsCommon extends OptiMLApplication with OverloadHack {
+trait LinearAlgebraTestsCommon extends OptiMLApplication {
   this: DeliteTestModule =>
 
   ////////////////

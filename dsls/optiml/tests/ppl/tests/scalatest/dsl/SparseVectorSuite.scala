@@ -236,7 +236,7 @@ trait SparseVectorFind extends DeliteTestModule with OptiMLApplication {
 
     val v2 = Vector.sparse[Double](100,true)
     v2(0) = 1; v2(1) = 2; v2(2) = 2; v2(3) = 2; v2(4) = 5        
-    val i: Rep[DenseVector[Int]] = v2.find { _ == 2 }
+    val i/*: Rep[DenseVector[Int]]*/ = v2.find { _ == 2 }
     collect(i == DenseVector(1,2,3)) 
     mkReport
   }
