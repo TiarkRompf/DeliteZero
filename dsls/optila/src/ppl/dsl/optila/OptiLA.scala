@@ -236,9 +236,12 @@ trait OptiLA extends DeliteApplication { this: OptiLAApplication =>
   val IndexVector: IndexVectorCompanion = ???
   abstract class IndexVectorCompanion {
     def apply(x: Int*): IndexVector = ???
+    def apply(x: Int,b: Boolean): IndexVector = ???
   }
 
   type IndexVector = Vector[Int]
+  type IndexVectorDense = IndexVector
+
 
   abstract class RangeVector extends IndexVector {
     def apply[A](f: Int => A): Vector[A] = ???
@@ -479,6 +482,8 @@ trait OptiLA extends DeliteApplication { this: OptiLAApplication =>
 
 
   def random[A]: A = ???
+  def random(k:Int): Int = ???
+  def random(k:IndexVector): Int = ??? // not sure about signature
 
   def sum[A](x: Int, y: Int)(f: Int => A): A = ???
   def sumIf[A,IGNORE](x: Int, y: Int)(c: Int => Boolean)(f: Int => A): A = ???
@@ -495,20 +500,35 @@ trait OptiLA extends DeliteApplication { this: OptiLAApplication =>
   def abs(x: Double): Double = ???
   def floor(x: Double): Double = ???
   def ceil(x: Double): Double = ???
+  def square(x: Double): Double = ???
+  def sqrt(x: Double): Double = ???
+  def cos(x: Double): Double = ???
+  def sin(x: Double): Double = ???
+  def acos(x: Double): Double = ???
+  def acin(x: Double): Double = ???
 
 
   def mean[A](x: Matrix[A]): A = ???
   def max[A](x: Matrix[A]): A = ???
   def min[A](x: Matrix[A]): A = ???
+  def sum[A](x: Matrix[A]): A = ???
+  def square[A](x: Matrix[A]): Matrix[A] = ???
+
+  def det[A](x: Matrix[A]): A = ???
+
 
   def median[A](x: Vector[A]): A = ???
   def mean[A](x: Vector[A]): A = ???
   def max[A](x: Vector[A]): A = ???
   def min[A](x: Vector[A]): A = ???
+  def sum[A](x: Vector[A]): A = ???
+  def square[A](x: Vector[A]): Vector[A] = ???
 
   def mean[A](x: A*): A = ???
   def max[A](x: A*): A = ???
   def min[A](x: A*): A = ???
+
+  val INF: Double = ???
 
   def dist[A](i: A, j: A): Double = ???
 
@@ -519,14 +539,36 @@ trait OptiLA extends DeliteApplication { this: OptiLAApplication =>
   def tic(): Unit = ???
   def toc(d:Any*): Unit = ???
 
+  def fatal(s: String) = sys.error(s)
 
   implicit class any2Overload(x:Any) {
     def ToString: String = x.toString
     def AsInstanceOf[T] = x.asInstanceOf[T]
   }
 
+  def t2[A,B](x: (A, B)) = x
+  def t3[A,B,C](x: (A, B, C)) = x
+  def t4[A,B,C,D](x: (A, B, C,D)) = x
+  def make_tuple2[A,B](x: A, y: B) = (x,y)
+  implicit def tuple3ArithWitness[A,B,C]: Arith[(A,B,C)] = ???
+  implicit class tuple3Arith[A,B,C](x: (A,B,C)) {
+    def -(y: (A,B,C)): (A,B,C) = ???
+    def /(y: (A,B,C)): (A,B,C) = ???
+    def /(y: Int): (A,B,C) = ???
+  }
+
+
+  def untilconverged[A](init: A, f: A => A, y: Int, b: Boolean)(g: A => A): A = ???
+
+  def readVector(x: String): Vector[Double] = ???
   def readMatrix(x: String): Matrix[Double] = ???
+
+  def readARFF[A](x: String, y: Vector[String] => A): Vector[A] = ??? //sig?
+
   def writeMatrix(x: Matrix[Double], y: String): Unit = ???
+
+  def readVector[A](x: String, f: String => A, d: String = "\t"): Vector[A] = ???
+  def readMatrix[A](x: String, f: String => A, d: String = "\t"): Matrix[A] = ???
 }
 
 trait OptiLACompiler extends OptiLA { this: OptiLAApplication with OptiLAExp =>
