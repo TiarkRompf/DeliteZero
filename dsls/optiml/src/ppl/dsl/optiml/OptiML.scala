@@ -23,7 +23,12 @@ trait OptiML extends DeliteApplication with OptiMLKmeans with OptiMLLinReg { thi
   object Rect {
     def apply(x:Int,y:Int,w:Int,h:Int): Rect = ???
   }
-  abstract class Rect
+  abstract class Rect {
+    val x: Int
+    val y: Int
+    val width: Int
+    val height: Int
+  }
 
 
   object Image {
@@ -31,6 +36,91 @@ trait OptiML extends DeliteApplication with OptiMLKmeans with OptiMLLinReg { thi
     def apply[A](x:Matrix[A]): Matrix[A] = x
   }
   type Image[A] = Matrix[A]
+  object GrayscaleImage {
+    def apply(x:Matrix[Double]): Matrix[Int] = ???
+  }
+  type GrayscaleImage = Image[Int]
+
+  def varToGrayscaleImageOps(x: GrayscaleImage) = new {
+    def bitwiseOrDownsample(): GrayscaleImage = ???
+  }
+  def repGrayscaleImageToGrayscaleImageOps(x: GrayscaleImage) = new {
+    def gradients(b: Boolean): (DenseMatrix[Float], DenseMatrix[Float]) = ???
+    def windowedFilter(w:Int, h: Int)(f: Matrix[Int] => Int) = ???
+  }
+
+
+  object BiGGDetection {
+    def apply(name: Rep[String], score: Rep[Float], roi: Rep[Rect], mask: Rep[GrayscaleImage], index: Rep[Int], x: Rep[Int], y: Rep[Int], tpl: Rep[BinarizedGradientTemplate], crt_tpl: Rep[BinarizedGradientTemplate]): BiGGDetection = ???
+  }
+
+  class BiGGDetection (
+    val name: String,
+    val score: Float,
+    val roi: Rect,
+    val mask: Image[Int],
+    val index: Int,
+    val x: Int,
+    val y: Int,
+    val tpl: BinarizedGradientTemplate,
+    val crt_tpl: BinarizedGradientTemplate
+  )
+
+  object BinarizedGradientPyramid {
+    def apply(pyramid: Rep[DenseVector[GrayscaleImage]], start_level: Rep[Int], levels: Rep[Int], fixedLevelIndex: Rep[Int]): BinarizedGradientPyramid = ???
+  }
+
+  //implicit def repBinarizedGradientPyramidToBinarizedGradientPyramidOps(x: Rep[BinarizedGradientPyramid]) = new binarizedgradientpyramidOpsCls(x)
+
+  class BinarizedGradientPyramid (
+    val pyramid: DenseVector[Image[Int]],
+    val start_level: Int,
+    val levels: Int,
+    val fixedLevelIndex: Int
+  )
+ 
+
+
+  object BinarizedGradientTemplate {
+    def apply(radius: Rep[Int], rect: Rep[Rect], mask_list: Rep[DenseVector[Int]], level: Rep[Int], binary_gradients: Rep[DenseVector[Int]], match_list: Rep[IndexVectorDense], occlusions: Rep[DenseVector[DenseVector[Int]]], templates: Rep[DenseVector[BinarizedGradientTemplate]], hist: Rep[DenseVector[Float]]): BinarizedGradientTemplate = ???
+  }
+
+  //implicit def repBinarizedGradientTemplateToBinarizedGradientTemplateOps(x: Rep[BinarizedGradientTemplate]) = new binarizedgradienttemplateOpsCls(x)
+
+  // object BinarizedGradientTemplate {
+  //   def apply(val radius: Int, ...) = newStruct(("radius","Int", radius),
+  // }
+
+  class BinarizedGradientTemplate (
+    // In the reduced image. The side of the template square is then 2*r+1.
+    val radius: Int,
+
+    // Holds a tighter bounding box of the object in the original image scale
+    val rect: Rect,
+    val mask_list: DenseVector[Int],
+
+    // Pyramid level of the template (reduction_factor = 2^level)
+    val level: Int,
+
+    // The list of gradients in the template
+    val binary_gradients: DenseVector[Int],
+
+    // indices to use for matching (skips zeros inside binary_gradients)
+    val match_list: IndexVectorDense,
+
+    // This is a match list of list of sub-parts. Currently unused.
+    val occlusions: DenseVector[DenseVector[Int]],
+
+    val templates: DenseVector[BinarizedGradientTemplate],
+
+    val hist: DenseVector[Float]
+  )
+ 
+  def readGrayscaleImage(s: String): GrayscaleImage = ???
+  def readTemplateModels(s: String) = ???
+
+
+
 
   object Graph {
     def apply[V,E](): Graph[V,E] = ???

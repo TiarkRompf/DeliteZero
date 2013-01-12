@@ -10,6 +10,11 @@ trait OptiLAScalaOpsPkgExp
 
 trait GenericDefs
 
+object datastruct {
+  object scala
+}
+
+
 object matrix
 object vector
 object extern
@@ -504,7 +509,7 @@ trait OptiLA extends DeliteApplication { this: OptiLAApplication =>
 
   def reseed: Unit = ???
 
-  def randomGaussian: Double
+  def randomGaussian: Double = ???
 
   def sum[A](x: Int, y: Int)(f: Int => A): A = ???
   def sumIf[A,IGNORE](x: Int, y: Int)(c: Int => Boolean)(f: Int => A): A = ???
