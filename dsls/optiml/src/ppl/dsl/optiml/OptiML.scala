@@ -12,10 +12,6 @@ object application {
   trait ApplicationOps
 }
 
-object datastruct {
-  object scala
-}
-
 
 
 trait OptiML extends DeliteApplication with OptiMLKmeans with OptiMLLinReg { this: OptiMLApplication =>

@@ -10,10 +10,6 @@ trait OptiLAScalaOpsPkgExp
 
 trait GenericDefs
 
-object datastruct {
-  object scala
-}
-
 
 object matrix
 object vector
@@ -24,8 +20,8 @@ object io
 
 trait OptiLA extends DeliteApplication { this: OptiLAApplication =>
 
-  val Vector: VectorCompanion = ???
-  abstract class VectorCompanion {
+  val Vector: VectorCompanion = new VectorCompanion
+  class VectorCompanion {
     def apply[A](size: Int, isRow: Boolean): Vector[A] = ???
     def apply[A](x: A*): Vector[A] = ???
 
@@ -51,36 +47,6 @@ trait OptiLA extends DeliteApplication { this: OptiLAApplication =>
     def uniform(start: Double, step_size: Double, end: Double, isRow: Boolean = unit(true)): Vector[Double] = ???
   }
   abstract class Vector[A] {
-/*    def length: Int
-    def isRow: Boolean
-    def apply(x: Int): A
-    def apply(x: Vector[Int]): Vector[A]
-    def update(x: Int, y: A): Unit
-    def t: Vector[A]
-    def +(x: Vector[A]): Vector[A]
-    def +(x: A): Vector[A]
-    def -(x: Vector[A]): Vector[A]
-    def -(x: A): Vector[A]
-    def *(x: Matrix[A]): Vector[A]
-    def *(x: Vector[A]): Vector[A]
-    def *(x: A): Vector[A]
-    def *:*(x: Vector[A]): A
-    def **(x: Vector[A]): Matrix[A]
-    def sum: A
-    def median: A
-    def mean: A
-    def contains(x: A): Boolean
-    def sort: Vector[A]
-    def foreach(f: A => Unit): Unit
-    def map[B](f: A => B): Vector[B]
-    def filter(f: A => Boolean): Vector[A]
-    def count(f: A => Boolean): Int
-    def zip[B,C](x: Vector[B])(f: (A,B) => C): Vector[C]
-    def mutable: Vector[A]
-    def Clone: Vector[A]
-    def ToString: String
-    def pprint: Unit
-*/
 
     // *** sparse ops
     def finish: SparseVector[A] = ???
@@ -230,17 +196,17 @@ trait OptiLA extends DeliteApplication { this: OptiLAApplication =>
     def partition(pred: A => Boolean): (Vector[A], Vector[A])   = ???//= vector_partition[A,VA](x,pred)
     def groupBy[K](pred: A => K): DenseVector[Vector[A]]  = ???//= vector_groupby[A,K,VA](x,pred)    
   }
-  val DenseVector: DenseVectorCompanion = ???
-  abstract class DenseVectorCompanion extends VectorCompanion
+  val DenseVector: DenseVectorCompanion = new DenseVectorCompanion
+  class DenseVectorCompanion extends VectorCompanion
   type DenseVector[A] = Vector[A]
 
-  val SparseVector: SparseVectorCompanion = ???
-  abstract class SparseVectorCompanion extends VectorCompanion
+  val SparseVector: SparseVectorCompanion = new SparseVectorCompanion  
+  class SparseVectorCompanion extends VectorCompanion
   type SparseVector[A] = Vector[A]
 
 
-  val IndexVector: IndexVectorCompanion = ???
-  abstract class IndexVectorCompanion {
+  val IndexVector: IndexVectorCompanion = new IndexVectorCompanion
+  class IndexVectorCompanion {
     def apply(x: Int*): IndexVector = ???
     def apply(x: Int,b: Boolean): IndexVector = ???
   }
@@ -248,7 +214,7 @@ trait OptiLA extends DeliteApplication { this: OptiLAApplication =>
   type IndexVector = Vector[Int]
   type IndexVectorDense = IndexVector
 
-  abstract class RangeVector extends IndexVector {
+  class RangeVector extends IndexVector {
     def apply[A](f: Int => A): Vector[A] = ???
   }
 
@@ -329,8 +295,8 @@ trait OptiLA extends DeliteApplication { this: OptiLAApplication =>
 
 
 
-  val Matrix: MatrixCompanion = ???
-  abstract class MatrixCompanion {
+  val Matrix: MatrixCompanion = new MatrixCompanion
+  class MatrixCompanion {
     def apply[A](x: Int, y: Int): Matrix[A] = ???
     def apply[A](x: Vector[Vector[A]]): Matrix[A] = ???
     def apply[A](x: Vector[A]*): Matrix[A] = ???
@@ -475,30 +441,30 @@ trait OptiLA extends DeliteApplication { this: OptiLAApplication =>
       def apply(i: Int): Int
     } = ???
   }
-  val DenseMatrix: DenseMatrixCompanion = ???
-  abstract class DenseMatrixCompanion extends MatrixCompanion
+  val DenseMatrix: DenseMatrixCompanion = new DenseMatrixCompanion
+  class DenseMatrixCompanion extends MatrixCompanion
   type DenseMatrix[A] = Matrix[A]
-  val SparseMatrix: SparseMatrixCompanion = ???
-  abstract class SparseMatrixCompanion extends MatrixCompanion
+  val SparseMatrix: SparseMatrixCompanion = new SparseMatrixCompanion
+  class SparseMatrixCompanion extends MatrixCompanion
   type SparseMatrix[A] = Matrix[A]
 
 
   implicit def boolMtoFloat(x: Matrix[Boolean]): Matrix[Float] = ???// FIXME: for rbm
 
 
-  val Stream: StreamCompanion = ???
-  abstract class StreamCompanion extends MatrixCompanion {
+  val Stream: StreamCompanion = new StreamCompanion
+  class StreamCompanion extends MatrixCompanion {
     def apply[A](x: Int, y: Int)(f: (Int,Int) => A): Stream[A] = ???
   }
-  abstract class Stream[A] extends Matrix[A] {
+  class Stream[A] extends Matrix[A] {
     def isPure: Boolean = ???
   }
 
-  abstract class StreamRow[A] extends Vector[A] {
+  class StreamRow[A] extends Vector[A] {
   }
 
 
-  abstract class Record
+  class Record
 
 
 
@@ -561,13 +527,15 @@ trait OptiLA extends DeliteApplication { this: OptiLAApplication =>
   def max[A](x: A*): A = ???
   def min[A](x: A*): A = ???
 
-  val INF: Double = ???
+  def INF = Double.PositiveInfinity  
+  def nINF = Double.NegativeInfinity   
 
-  abstract class DIST
-  case object DEFAULT extends DIST
-  case object SQUARE extends DIST
+  class DistanceMetric
+  object ABS extends DistanceMetric
+  object EUC extends DistanceMetric
+  object SQUARE extends DistanceMetric
 
-  def dist[A](i: A, j: A, spec: DIST = DEFAULT): Double = ???
+  def dist[A](i: A, j: A, spec: DistanceMetric = ABS): Double = ???
 
   def nearestNeighborIndex[A](x: Int, m: Matrix[A], any: Boolean = false): Int = ???
 
