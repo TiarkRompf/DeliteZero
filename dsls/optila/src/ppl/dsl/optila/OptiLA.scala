@@ -200,7 +200,8 @@ trait OptiLA extends DeliteApplication { this: OptiLAApplication =>
     def abs(implicit a: Arith[A]): A  = ???//= vector_abs[A,VA](x)
     def exp(implicit a: Arith[A]): A  = ???//= vector_exp[A,VA](x)
     
-    def sort(implicit o: Ordering[A]): Vector[A]
+    def sort(implicit o: Ordering[A]): Vector[A] = ???
+    def sortWithIndex(implicit o: Ordering[A]): (Vector[A], Vector[Int]) = ???
     def min(implicit o: Ordering[A], mx: HasMinMax[A]): A  = ???//= vector_min(x)
     def minIndex(implicit o: Ordering[A], mx: HasMinMax[A]): Int  = ???//= vector_minindex(x)
     def max(implicit o: Ordering[A], mx: HasMinMax[A]): A  = ???//= vector_max(x)
@@ -367,6 +368,7 @@ trait OptiLA extends DeliteApplication { this: OptiLAApplication =>
     def apply(i: Int, j: Int): A  = ???
     def apply(i: Int): Vector[A] = ???
     def apply(i: IndexVector): Matrix[A] = ???
+    def apply(i: IndexVector, j: Int): Vector[A] = ???
     def apply(i: Wildcard, j: IndexVector): Matrix[A] = ???
     def apply(i: IndexVector, j: Wildcard): Matrix[A] = ???
     def apply(i: IndexVector, j: IndexVector): Matrix[A] = ???
@@ -454,6 +456,10 @@ trait OptiLA extends DeliteApplication { this: OptiLAApplication =>
     def +=(x: Vector[A]): this.type = ???
     def finish: SparseMatrix[A] = ???
     def nnz: Int = ???
+    def nzRowIndices: { 
+      def apply[A](f: Int => A): Vector[A] 
+      def apply(i: Int): Int
+    } = ???
   }
   val DenseMatrix: DenseMatrixCompanion = ???
   abstract class DenseMatrixCompanion extends MatrixCompanion
@@ -488,11 +494,17 @@ trait OptiLA extends DeliteApplication { this: OptiLAApplication =>
   def sum[A](x: Int, y: Int)(f: Int => A): A = ???
   def sumIf[A,IGNORE](x: Int, y: Int)(c: Int => Boolean)(f: Int => A): A = ???
 
-  def aggregate[A](x: Int, y: Int)(f: Int => A): A = ???
+  def aggregate[A](x: Int, y: Int)(f: Int => A): Vector[A] = ???
   def aggregateIf[A,IGNORE](x: Int, y: Int)(c: Int => Boolean)(f: Int => A): Vector[A] = ???
 
   def aggregate[A](x: RangeVector, y: RangeVector)(f: (Int,Int) => A): Vector[A] = ???
   def aggregateIf[A](x: RangeVector, y: RangeVector)(c: (Int,Int) => Boolean)(f: (Int,Int) => A): Vector[A] = ???
+
+
+  trait Triangle // IndexVector2
+  def utriangle(x: Int, b: Boolean): Triangle = ???
+
+  def aggregate[A](x: Triangle)(f: (Int,Int) => A): Vector[A] = ???
 
 
   def pow(x: Double, y: Double): Double = ???
@@ -560,8 +572,8 @@ trait OptiLA extends DeliteApplication { this: OptiLAApplication =>
 
   def untilconverged[A](init: A, f: A => A, y: Int, b: Boolean)(g: A => A): A = ???
 
-  def readVector(x: String): Vector[Double] = ???
-  def readMatrix(x: String): Matrix[Double] = ???
+  def readVector(x: String, d: String = "\t"): Vector[Double] = ???
+  def readMatrix(x: String, d: String = "\t"): Matrix[Double] = ???
 
   def readARFF[A](x: String, y: Vector[String] => A): Vector[A] = ??? //sig?
 
