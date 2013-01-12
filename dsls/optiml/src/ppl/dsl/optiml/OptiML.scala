@@ -5,7 +5,8 @@ import ppl.delite.framework.datastructures._
 
 import ppl.dsl.optila._
 
-import library.cluster.{OptiMLKmeans}
+import library.cluster._
+import library.regression._
 
 object application {
   trait ApplicationOps
@@ -17,7 +18,7 @@ object datastruct {
 
 
 
-trait OptiML extends DeliteApplication with OptiMLKmeans { this: OptiMLApplication =>
+trait OptiML extends DeliteApplication with OptiMLKmeans with OptiMLLinReg { this: OptiMLApplication =>
 
   object Rect {
     def apply(x:Int,y:Int,w:Int,h:Int): Rect = ???
