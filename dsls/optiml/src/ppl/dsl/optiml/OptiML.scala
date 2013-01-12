@@ -25,6 +25,12 @@ trait OptiML extends DeliteApplication with OptiMLKmeans { this: OptiMLApplicati
   abstract class Rect
 
 
+  object Image {
+    def apply[A](x:Int,y:Int): Matrix[A] = ???
+    def apply[A](x:Matrix[A]): Matrix[A] = x
+  }
+  type Image[A] = Matrix[A]
+
   object Graph {
     def apply[V,E](): Graph[V,E] = ???
   }
@@ -37,13 +43,20 @@ trait OptiML extends DeliteApplication with OptiMLKmeans { this: OptiMLApplicati
   }
 
 
-  case class Vertex[V,E](g: Graph[V,E], val data: vertexData) {
+  case class Vertex[V,E](g: Graph[V,E], val data: V) {
     def edges: Iterable[Edge[V,E]] = ???
+    def addTask(x: E): Unit = ???
   }
-  case class Edge[V,E](g: Graph[V,E], inData: edgeData, outData: edgeData, in: Vertex[V,E], out: Vertex[V,E])
+  case class Edge[V,E](g: Graph[V,E], inData: E, outData: E, inV: Vertex[V,E], outV: Vertex[V,E]) {
+    def in(v: Vertex[V,E]): E = ???
+    def out(v: Vertex[V,E]): E = ???
+    def target(v: Vertex[V,E]): E = ???
+  }
 
   case class vertexData(name: String, x: Int)
   case class edgeData(name: String)
+
+  class MessageData
 
 
   def UnsupervisedTrainingSet[A](x: Matrix[A]) = x
@@ -54,10 +67,14 @@ trait OptiML extends DeliteApplication with OptiMLKmeans { this: OptiMLApplicati
     def numFeatures: Int = ???
   }
 
+  object MLOutputWriter {
+    def writeImgPgm(img: Matrix[Double], s: String): Unit = ???
+  }
+
 
   def untilconverged[A](init: Matrix[A], y: Double)(g: Matrix[A] => Matrix[A]): Matrix[A] = ???
   def untilconverged[A](init: A, f: A => A, y: Int, b: Boolean)(g: A => A): A = ???
-
+  def untilconverged[V,E](g: Graph[V,E])(f: Vertex[V,E] => Unit): Graph[V,E] = ???
 
 }
 

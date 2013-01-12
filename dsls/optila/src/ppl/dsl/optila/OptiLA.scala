@@ -197,8 +197,8 @@ trait OptiLA extends DeliteApplication { this: OptiLAApplication =>
     def /=(y: A)(implicit a: Arith[A], o: Overloaded1): Unit  = ???//= vector_divideequals_scalar[A](x,y)
     
     def sum(implicit a: Arith[A]): A  = ???//= vector_sum(x)
-    def abs(implicit a: Arith[A]): A  = ???//= vector_abs[A,VA](x)
-    def exp(implicit a: Arith[A]): A  = ???//= vector_exp[A,VA](x)
+    def abs(implicit a: Arith[A]): Vector[A]  = ???//= vector_abs[A,VA](x)
+    def exp(implicit a: Arith[A]): Vector[A]  = ???//= vector_exp[A,VA](x)
     
     def sort(implicit o: Ordering[A]): Vector[A] = ???
     def sortWithIndex(implicit o: Ordering[A]): (Vector[A], Vector[Int]) = ???
@@ -500,6 +500,8 @@ trait OptiLA extends DeliteApplication { this: OptiLAApplication =>
   def random(k:Int): Int = ???
   def random(k:IndexVector): Int = ??? // not sure about signature
 
+  def randomGaussian: Double
+
   def sum[A](x: Int, y: Int)(f: Int => A): A = ???
   def sumIf[A,IGNORE](x: Int, y: Int)(c: Int => Boolean)(f: Int => A): A = ???
 
@@ -518,6 +520,7 @@ trait OptiLA extends DeliteApplication { this: OptiLAApplication =>
 
   def pow(x: Double, y: Double): Double = ???
   def exp(x: Double): Double = ???
+  def log(x: Double): Double = ???
   def abs(x: Double): Double = ???
   def floor(x: Double): Double = ???
   def ceil(x: Double): Double = ???
