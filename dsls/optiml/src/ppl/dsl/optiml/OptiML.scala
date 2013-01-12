@@ -5,6 +5,8 @@ import ppl.delite.framework.datastructures._
 
 import ppl.dsl.optila._
 
+import library.cluster.{OptiMLKmeans}
+
 object application {
   trait ApplicationOps
 }
@@ -15,7 +17,7 @@ object datastruct {
 
 
 
-trait OptiML extends DeliteApplication { this: OptiMLApplication =>
+trait OptiML extends DeliteApplication with OptiMLKmeans { this: OptiMLApplication =>
 
   object Rect {
     def apply(x:Int,y:Int,w:Int,h:Int): Rect = ???
@@ -52,6 +54,11 @@ trait OptiML extends DeliteApplication { this: OptiMLApplication =>
     def numFeatures: Int = ???
   }
 
+
+  def untilconverged[A](init: Matrix[A], y: Double)(g: Matrix[A] => Matrix[A]): Matrix[A] = ???
+  def untilconverged[A](init: A, f: A => A, y: Int, b: Boolean)(g: A => A): A = ???
+
+
 }
 
 trait OptiMLExp extends OptiML with OptiLAExp { this: OptiMLApplication with OptiMLExp =>
@@ -62,7 +69,7 @@ trait OptiMLExp extends OptiML with OptiLAExp { this: OptiMLApplication with Opt
 trait OptiMLApplicationRunner extends OptiLAApplicationRunner with OptiMLApplication with DeliteApplication with OptiMLExp
 
 // ex. trait GDA extends OptiLAApplication
-trait OptiMLApplication extends OptiLAApplication with OptiML {
+trait OptiMLApplication extends OptiLAApplication with OptiML with OptiMLLift {
   var args: Array[String]
   def main(): Unit
 }
@@ -75,3 +82,4 @@ trait OptiMLApplicationRunnerBase
 
 trait OptiMLNoCSE
 
+trait OptiMLLift

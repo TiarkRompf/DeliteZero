@@ -1,6 +1,5 @@
 package ppl.apps.bio.spade
 
-import ppl.dsl.optiml.{Vector,Matrix}
 import ppl.dsl.optiml.{OptiMLApplication, OptiMLApplicationRunner}
 
 object SpadeRunner extends OptiMLApplicationRunner with Spade

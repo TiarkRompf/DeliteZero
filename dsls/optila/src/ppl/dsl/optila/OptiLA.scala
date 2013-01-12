@@ -446,6 +446,7 @@ trait OptiLA extends DeliteApplication { this: OptiLAApplication =>
     def count(pred: A => Boolean): Int = ???
     def mapRows[B](f: Vector[A] => Vector[B]): Matrix[A]  = ???
     def reduceRows(f: (Vector[A],Vector[A]) => Vector[A]): Vector[A] = ???
+    def sumRowsWhere(c: Int => Boolean)(implicit a: Arith[A]): Vector[A] = ???
 
 
     // update ops
@@ -550,7 +551,11 @@ trait OptiLA extends DeliteApplication { this: OptiLAApplication =>
 
   val INF: Double = ???
 
-  def dist[A](i: A, j: A): Double = ???
+  abstract class DIST
+  case object DEFAULT extends DIST
+  case object SQUARE extends DIST
+
+  def dist[A](i: A, j: A, spec: DIST = DEFAULT): Double = ???
 
   def nearestNeighborIndex[A](x: Int, m: Matrix[A], any: Boolean = false): Int = ???
 
@@ -577,8 +582,6 @@ trait OptiLA extends DeliteApplication { this: OptiLAApplication =>
     def /(y: Int): (A,B,C) = ???
   }
 
-
-  def untilconverged[A](init: A, f: A => A, y: Int, b: Boolean)(g: A => A): A = ???
 
   def readVector(x: String, d: String = "\t"): Vector[Double] = ???
   def readMatrix(x: String, d: String = "\t"): Matrix[Double] = ???
