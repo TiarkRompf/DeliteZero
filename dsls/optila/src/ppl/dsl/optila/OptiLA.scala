@@ -243,10 +243,14 @@ trait OptiLA extends DeliteApplication { this: OptiLAApplication =>
   type IndexVector = Vector[Int]
   type IndexVectorDense = IndexVector
 
-
   abstract class RangeVector extends IndexVector {
     def apply[A](f: Int => A): Vector[A] = ???
   }
+
+  def EmptyVector[A]: EmptyVector[A] = ???
+  type EmptyVector[A] = Vector[A]
+  type DenseVectorView[A] = DenseVector[A]
+
 
 
 
@@ -309,6 +313,9 @@ trait OptiLA extends DeliteApplication { this: OptiLAApplication =>
   implicit def floatArith: Arith[Float] = ???
   implicit def doubleArith: Arith[Double] = ???
 
+  implicit def vectorArith[A:Arith]: Arith[Vector[A]] = ???
+
+
   trait HasMinMax[A]
 
   implicit def intMinMax: HasMinMax[Int] = ???
@@ -320,6 +327,7 @@ trait OptiLA extends DeliteApplication { this: OptiLAApplication =>
   val Matrix: MatrixCompanion = ???
   abstract class MatrixCompanion {
     def apply[A](x: Int, y: Int): Matrix[A] = ???
+    def apply[A](x: Vector[Vector[A]]): Matrix[A] = ???
     def apply[A](x: Vector[A]*): Matrix[A] = ???
 
     def dense[A](numRows: Int, numCols: Int): DenseMatrix[A] = ???
@@ -548,7 +556,7 @@ trait OptiLA extends DeliteApplication { this: OptiLAApplication =>
 
   def sample[A,IGNORE](x: Vector[A], y: Int): Vector[A] = ???
 
-  def tic(): Unit = ???
+  def tic(d:Any*): Unit = ???
   def toc(d:Any*): Unit = ???
 
   def fatal(s: String) = sys.error(s)

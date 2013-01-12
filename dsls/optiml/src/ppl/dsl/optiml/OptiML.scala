@@ -70,3 +70,8 @@ trait OptiMLApplication extends OptiLAApplication with OptiML {
 trait OptiMLInteractive extends OptiMLApplication with DeliteInteractive
 
 trait OptiMLInteractiveRunner extends OptiMLApplicationRunner with DeliteInteractiveRunner
+
+trait OptiMLApplicationRunnerBase 
+
+trait OptiMLNoCSE
+
