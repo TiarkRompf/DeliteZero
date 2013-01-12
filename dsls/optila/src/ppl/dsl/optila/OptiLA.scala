@@ -23,10 +23,6 @@ trait OptiLA extends DeliteApplication { this: OptiLAApplication =>
   abstract class VectorCompanion {
     def apply[A](size: Int, isRow: Boolean): Vector[A] = ???
     def apply[A](x: A*): Vector[A] = ???
-    def zeros(size: Int): DenseVector[Double] = ???
-    def ones(size: Int): DenseVector[Double] = ???
-    def range(x: Int, y: Int, z: Int = 0): RangeVector = ???
-    def rand(size: Int): Vector[Double] = ???
 
     def flatten[A](x:Vector[Vector[A]]): Vector[A] = ???
 
@@ -39,18 +35,16 @@ trait OptiLA extends DeliteApplication { this: OptiLAApplication =>
 */
     def dense[A](len: Int, isRow: Boolean): DenseVector[A] = ???
     def sparse[A](len: Int, isRow: Boolean): SparseVector[A] = ???
-/*        
-    def ones(len: Int) = DenseVector.ones(len)
-    def onesf(len: Int) = DenseVector.onesf(len)
-    def zeros(len: Int) = DenseVector.zeros(len)
-    def zerosf(len: Int) = DenseVector.zerosf(len)
-    def rand([Alen: Int) = DenseVector.rand(len)
-    def randf(len: Int) = DenseVector.randf(len)
-    def range(start: Int, end: Int, stride: Int = unit(1), isRow: Boolean = unit(true)) =
-      vector_obj_range(start, end, stride, isRow)
-    def uniform(start: Double, step_size: Double, end: Double, isRow: Boolean = unit(true)) =
-      DenseVector.uniform(start, step_size, end, isRow)
-*/  }
+
+    def ones(len: Int): Vector[Double] = ???
+    def onesf(len: Int): Vector[Float] = ???
+    def zeros(len: Int): Vector[Double] = ???
+    def zerosf(len: Int): Vector[Float] = ???
+    def rand(Alen: Int): Vector[Double] = ???
+    def randf(len: Int): Vector[Float] = ???
+    def range(start: Int, end: Int, stride: Int = unit(1), isRow: Boolean = unit(true)): RangeVector = ???
+    def uniform(start: Double, step_size: Double, end: Double, isRow: Boolean = unit(true)): Vector[Double] = ???
+  }
   abstract class Vector[A] {
 /*    def length: Int
     def isRow: Boolean
@@ -168,7 +162,6 @@ trait OptiLA extends DeliteApplication { this: OptiLAApplication =>
     //def +(y: Vector[A])(implicit a: Arith[A]): Vector[A]  = ???//= vector_plus[A,VA](x,y) // needed for Arith        
     def +(y: A)(implicit a: Arith[A], o: Overloaded1): Vector[A]  = ???//= vector_plus_scalar[A,VA](x,y) 
     def +=(y: Vector[A])(implicit a: Arith[A]): Unit  = ???//= { vector_plusequals[A](x,y); elem }
-    def +=(y: Vector[A])(implicit a: Arith[A], o: Overloaded1): Unit  = ???//= { vector_plusequals[A](x,y); elem }
     def :+=(y: A)(implicit a: Arith[A], o: Overloaded1)  = ???//= vector_plusequals_scalar[A](x,y) 
     
     def -(y: Vector[A])(implicit a: Arith[A]): Vector[A]  = ???//= vector_minus[A,VA](x,y)
@@ -225,7 +218,7 @@ trait OptiLA extends DeliteApplication { this: OptiLAApplication =>
     def reduce(f: (A,A) => A)(implicit a: Arith[A]): A  = ???//= vector_reduce(x,f)
     def filter(pred: A => Boolean): Vector[A]  = ???//= vector_filter[A,VA](x,pred)
     
-    def find(pred: A => Boolean): Vector[Int]  = ???//= vector_find[A,V[Int]](x,pred)    
+    def find(pred: A => Boolean): IndexVector  = ???//= vector_find[A,V[Int]](x,pred)    
     def count(pred: A => Boolean): Int  = ???//= vector_count(x, pred)
     def flatMap[B](f: A => Vector[B]): Vector[B]  = ???//= vector_flatmap[A,B,V[B]](x,f)
     def partition(pred: A => Boolean): (Vector[A], Vector[A])   = ???//= vector_partition[A,VA](x,pred)
@@ -233,11 +226,11 @@ trait OptiLA extends DeliteApplication { this: OptiLAApplication =>
   }
   val DenseVector: DenseVectorCompanion = ???
   abstract class DenseVectorCompanion extends VectorCompanion
-  abstract class DenseVector[A] extends Vector[A]
+  type DenseVector[A] = Vector[A]
 
   val SparseVector: SparseVectorCompanion = ???
   abstract class SparseVectorCompanion extends VectorCompanion
-  abstract class SparseVector[A] extends Vector[A]
+  type SparseVector[A] = Vector[A]
 
 
   val IndexVector: IndexVectorCompanion = ???
@@ -245,7 +238,7 @@ trait OptiLA extends DeliteApplication { this: OptiLAApplication =>
     def apply(x: Int*): IndexVector = ???
   }
 
-  abstract class IndexVector extends Vector[Int]
+  type IndexVector = Vector[Int]
 
   abstract class RangeVector extends IndexVector {
     def apply[A](f: Int => A): Vector[A] = ???
@@ -324,10 +317,6 @@ trait OptiLA extends DeliteApplication { this: OptiLAApplication =>
   abstract class MatrixCompanion {
     def apply[A](x: Int, y: Int): Matrix[A] = ???
     def apply[A](x: Vector[A]*): Matrix[A] = ???
-    def zeros(x: Int, y: Int): Matrix[Double] = ???
-    def ones(x: Int, y: Int): Matrix[Double] = ???
-    //def range(x: Int, y: Int): Vector[Int] = ???
-    def rand(x: Int, y: Int): Matrix[Double] = ???
 
     def dense[A](numRows: Int, numCols: Int): DenseMatrix[A] = ???
     def sparse[A](numRows: Int, numCols: Int): SparseMatrix[A] = ???
@@ -338,26 +327,24 @@ trait OptiLA extends DeliteApplication { this: OptiLAApplication =>
     def apply[A](xs: Rep[DenseVector[DenseVector[A]]]): Rep[DenseMatrix[A]] = densematrix_obj_fromvec(xs)
     def apply[A](xs: Rep[DenseVector[DenseVectorView[A]]])(implicit mA: Manifest[A], o: Overloaded1): Matrix[A] = densematrix_obj_fromvec(xs.asInstanceOf[Rep[DenseVector[DenseVector[A]]]])
     def apply[A](xs: Rep[DenseVector[A]]*): Rep[DenseMatrix[A]] = DenseMatrix(DenseVector(xs: _*))
-
-    def dense[A](numRows: Int, numCols: Int) = densematrix_obj_new(numRows, numCols)
-    def sparse[A](numRows: Int, numCols: Int) = sparsematrix_obj_new(numRows, numCols)   
-    
-    def diag[A](w: Int, vals: Vector[A]) = DenseMatrix.diag[A](w,vals)
-    def identity(w: Int) = DenseMatrix.identity(w)
-    def zeros(numRows: Int, numCols: Int) = DenseMatrix.zeros(numRows,numCols)
-    def zerosf(numRows: Int, numCols: Int) = DenseMatrix.zerosf(numRows,numCols)
-    def mzerosf(numRows: Int, numCols: Int) = DenseMatrix.mzerosf(numRows,numCols)
-    def ones(numRows: Int, numCols: Int) = DenseMatrix.ones(numRows,numCols)
-    def onesf(numRows: Int, numCols: Int) = DenseMatrix.onesf(numRows,numCols)
-    def rand(numRows: Int, numCols: Int) = DenseMatrix.rand(numRows,numCols)
-    def randf(numRows: Int, numCols: Int) = DenseMatrix.randf(numRows,numCols)
-    def randn(numRows: Int, numCols: Int) = DenseMatrix.randn(numRows,numCols)
-    def randnf(numRows: Int, numCols: Int) = DenseMatrix.randnf(numRows,numCols)
-    def mrandnf(numRows: Int, numCols: Int) = DenseMatrix.mrandnf(numRows,numCols)
 */
+    
+    def diag[A](w: Int, vals: Vector[A]): Matrix[A] = ???
+    def identity(w: Int): Matrix[Double] = ???
+    def zeros(numRows: Int, numCols: Int): Matrix[Double] = ???
+    def zerosf(numRows: Int, numCols: Int): Matrix[Float] = ???
+    def mzerosf(numRows: Int, numCols: Int): Matrix[Float] = ???
+    def ones(numRows: Int, numCols: Int): Matrix[Double] = ???
+    def onesf(numRows: Int, numCols: Int): Matrix[Float] = ???
+    def rand(numRows: Int, numCols: Int): Matrix[Double] = ???
+    def randf(numRows: Int, numCols: Int): Matrix[Float] = ???
+    def randn(numRows: Int, numCols: Int): Matrix[Double] = ???
+    def randnf(numRows: Int, numCols: Int): Matrix[Float] = ???
+    def mrandnf(numRows: Int, numCols: Int): Matrix[Float] = ???
   }
   abstract class MatrixView[A] extends Matrix[A]
   abstract class Matrix[A] {
+    def unsafeImmutable = this
     def dcSize: Int = ???
     def dcApply(n: Int): A = ???
     def dcUpdate(n: Int, y: A): Unit = ???
@@ -385,6 +372,8 @@ trait OptiLA extends DeliteApplication { this: OptiLAApplication =>
     def getCol(col: Int): Vector[A] = ???
     def slice(startRow: Int, endRow: Int, startCol: Int, endCol: Int): Matrix[A] = ???
     def sliceRows(start: Int, end: Int): Matrix[A] = ???
+    def rows: Vector[Vector[A]] = ???
+    //def cols: Vector[Vector[A]] = ???
 
     // general
     def t: Matrix[A]  = ???
@@ -435,7 +424,7 @@ trait OptiLA extends DeliteApplication { this: OptiLAApplication =>
     def map[B](f: A => B): Matrix[B] = ???
     /// TODO: rename to transform?
     def mmap(f: A => A): this.type = ???
-    def mapRowsToVector[B](f: Vector[A] => B, isRow: Boolean): Vector[B] = ???
+    def mapRowsToVector[B](f: Vector[A] => B, isRow: Boolean = true): Vector[B] = ???
     def foreach(block: A => Unit): Unit = ???
     def foreachRow(block: Vector[A] => Unit): Unit = ???
     def zip[B,R](y: Matrix[B])(f: (A,B) => R): Matrix[R]  = ???
@@ -465,10 +454,10 @@ trait OptiLA extends DeliteApplication { this: OptiLAApplication =>
   }
   val DenseMatrix: DenseMatrixCompanion = ???
   abstract class DenseMatrixCompanion extends MatrixCompanion
-  abstract class DenseMatrix[A] extends Matrix[A]
+  type DenseMatrix[A] = Matrix[A]
   val SparseMatrix: SparseMatrixCompanion = ???
   abstract class SparseMatrixCompanion extends MatrixCompanion
-  abstract class SparseMatrix[A] extends Matrix[A]
+  type SparseMatrix[A] = Matrix[A]
 
 
 
@@ -482,6 +471,9 @@ trait OptiLA extends DeliteApplication { this: OptiLAApplication =>
 
   abstract class StreamRow[A] extends Vector[A] {
   }
+
+
+  abstract class Record
 
 
 
@@ -498,9 +490,11 @@ trait OptiLA extends DeliteApplication { this: OptiLAApplication =>
   def aggregateIf[A](x: RangeVector, y: RangeVector)(c: (Int,Int) => Boolean)(f: (Int,Int) => A): Vector[A] = ???
 
 
-  def pow(x: Double, y: Int): Double = ???
+  def pow(x: Double, y: Double): Double = ???
   def exp(x: Double): Double = ???
   def abs(x: Double): Double = ???
+  def floor(x: Double): Double = ???
+  def ceil(x: Double): Double = ???
 
 
   def mean[A](x: Matrix[A]): A = ???
@@ -513,6 +507,8 @@ trait OptiLA extends DeliteApplication { this: OptiLAApplication =>
   def min[A](x: Vector[A]): A = ???
 
   def mean[A](x: A*): A = ???
+  def max[A](x: A*): A = ???
+  def min[A](x: A*): A = ???
 
   def dist[A](i: A, j: A): Double = ???
 
@@ -521,9 +517,13 @@ trait OptiLA extends DeliteApplication { this: OptiLAApplication =>
   def sample[A,IGNORE](x: Vector[A], y: Int): Vector[A] = ???
 
   def tic(): Unit = ???
-  def toc(): Unit = ???
+  def toc(d:Any*): Unit = ???
 
-  def infix_ToString(x:Any): String = ???
+
+  implicit class any2Overload(x:Any) {
+    def ToString: String = x.toString
+    def AsInstanceOf[T] = x.asInstanceOf[T]
+  }
 
   def readMatrix(x: String): Matrix[Double] = ???
   def writeMatrix(x: Matrix[Double], y: String): Unit = ???
