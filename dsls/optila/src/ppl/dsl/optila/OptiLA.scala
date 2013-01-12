@@ -366,10 +366,10 @@ trait OptiLA extends DeliteApplication { this: OptiLAApplication =>
     def vview(start: Int, stride: Int, length: Int, isRow: Boolean): MatrixView[A] = ???
     
     // conversions
-    def toBoolean(implicit conv: A => Boolean)  = ???
-    def toDouble(implicit conv: A => Double)  = ???
-    def toFloat(implicit conv: A => Float)  = ???
-    def toInt(implicit conv: A => Int)  = ???
+    def toBoolean(implicit conv: A => Boolean): Matrix[Boolean]  = ???
+    def toDouble(implicit conv: A => Double): Matrix[Double]  = ???
+    def toFloat(implicit conv: A => Float): Matrix[Float]  = ???
+    def toInt(implicit conv: A => Int): Matrix[Int]  = ???
     //def toLong(implicit conv: A => Rep[Long])  = ???
 
     // accessors
@@ -430,8 +430,8 @@ trait OptiLA extends DeliteApplication { this: OptiLAApplication =>
     def minRow(implicit o: Ordering[A], mx: HasMinMax[A]): Vector[A]  = ???
     def max(implicit o: Ordering[A], mx: HasMinMax[A])  = ???
     def maxRow(implicit o: Ordering[A], mx: HasMinMax[A]): Vector[A]  = ???
-    def :>(y: Matrix[A])(implicit o: Ordering[A])  = ???
-    def :<(y: Matrix[A])(implicit o: Ordering[A])  = ???
+    def :>(y: Matrix[A])(implicit o: Ordering[A]): Matrix[Boolean]  = ???
+    def :<(y: Matrix[A])(implicit o: Ordering[A]): Matrix[Boolean]  = ???
 
     // bulk operations
     def map[B](f: A => B): Matrix[B] = ???
@@ -478,6 +478,8 @@ trait OptiLA extends DeliteApplication { this: OptiLAApplication =>
   type SparseMatrix[A] = Matrix[A]
 
 
+  implicit def boolMtoFloat(x: Matrix[Boolean]): Matrix[Float] = ???// FIXME: for rbm
+
 
   val Stream: StreamCompanion = ???
   abstract class StreamCompanion extends MatrixCompanion {
@@ -499,6 +501,8 @@ trait OptiLA extends DeliteApplication { this: OptiLAApplication =>
   def random[A]: A = ???
   def random(k:Int): Int = ???
   def random(k:IndexVector): Int = ??? // not sure about signature
+
+  def reseed: Unit = ???
 
   def randomGaussian: Double
 
@@ -591,6 +595,7 @@ trait OptiLA extends DeliteApplication { this: OptiLAApplication =>
 
   def readARFF[A](x: String, y: Vector[String] => A): Vector[A] = ??? //sig?
 
+  def writeVector(x: Vector[Double], y: String): Unit = ???
   def writeMatrix(x: Matrix[Double], y: String): Unit = ???
 
   def readVector[A](x: String, f: String => A, d: String = "\t"): Vector[A] = ???

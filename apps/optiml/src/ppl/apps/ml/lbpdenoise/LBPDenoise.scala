@@ -16,26 +16,6 @@ object LBPDenoiseRunner extends OptiMLApplicationRunner with LBPDenoise
 
 trait LBPDenoise extends OptiMLApplication {
 
-  def DenoiseVertexData(_id : Int, _belief : DenseVector[Double], _potential : DenseVector[Double]): DenoiseVertexData = ???
-  def DenoiseEdgeData(_msg : DenseVector[Double], _oldMsg : DenseVector[Double]): DenoiseEdgeData = ???
-
-  class DenoiseVertexData (
-    val potential: Vector[Double],
-    var belief: Vector[Double],
-    val id: Int
-  ) {
-    def setBelief(b: Vector[Double]) = belief = b
-  }
-
-  class DenoiseEdgeData (
-    var message: Vector[Double],
-    var oldMessage: Vector[Double]
-  ) {
-    def setMessage(m: Vector[Double]) = message = m
-    def setOldMessage(oM: Vector[Double]) = oldMessage = oM
-    def Clone : DenoiseEdgeData  = new DenoiseEdgeData(message = this.message, oldMessage = this.oldMessage)
-  }
-
   def print_usage = {
     println("Usage: LBPDenoise <rows> <cols>")
     println("Example: LBPDenoise 100 100")

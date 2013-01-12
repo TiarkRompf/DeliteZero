@@ -27,7 +27,7 @@ trait UntilConverged extends OptiMLApplication {
     val rows = Integer.parseInt(args(0))
     val cols = Integer.parseInt(args(1))
     val interval = Integer.parseInt(args(2))
-    val limit = Double.parseDouble(args(3))
+    val limit = java.lang.Double.parseDouble(args(3))
     val numRings = unit(5)
   
     // Construct graph

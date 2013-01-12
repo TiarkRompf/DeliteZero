@@ -146,7 +146,7 @@ trait SVMRelaxedModels { this: OptiMLApplication =>
       alphas
 
     // in scala, closures bind variables by reference, so diff() sees the updates to max_passes and passes
-    }}((v1, v2) => if (passes > max_passes) unit(0) else max_passes - passes, manifest[DenseVector[Double]], vectorCloneable[Double,DenseVector[Double]], implicitly[SourceContext]) // untilconverged
+    }}((v1, v2) => if (passes > max_passes) unit(0) else max_passes - passes) // , manifest[DenseVector[Double]], vectorCloneable[Double,DenseVector[Double]], implicitly[SourceContext]) // untilconverged
 
     // SMO finished
     print("\n")
