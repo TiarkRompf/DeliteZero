@@ -13,7 +13,8 @@ trait DeliteSuite extends Suite {
 
 trait DeliteTestModule {
   def collect(s: Boolean) { 
-    println(s); assert(s) 
+    //println(s)
+    assert(s) 
   }
   def mkReport {}
 }

@@ -3,12 +3,19 @@ package ppl.dsl.optila
 import ppl.delite.framework._
 import ppl.delite.framework.datastructures._
 
+import scala.reflect.ClassTag
+import scala.collection.mutable.ArrayBuffer
+
 
 trait OptiLAScalaOpsPkg
 trait OptiLAUtilities
 trait OptiLAScalaOpsPkgExp
 
 trait GenericDefs
+
+
+import ppl.dsl.optila.datastruct.scala.Global
+
 
 
 object matrix
@@ -22,10 +29,28 @@ trait OptiLA extends DeliteApplication { this: OptiLAApplication =>
 
   val Vector: VectorCompanion = new VectorCompanion
   class VectorCompanion {
-    def apply[A](size: Int, isRow: Boolean): Vector[A] = ???
-    def apply[A](x: A*): Vector[A] = ???
+    def _fromArray[A:ClassTag](data: Array[A], isRow: Boolean = true): Vector[A] = {
+      val v = new Vector[A]
+      v._data = data
+      v._isRow = isRow
+      v
+    }
+    def fill[A:ClassTag](size: Int, f: Int => A): Vector[A] = fill(size, true, f)
+    def fill[A:ClassTag](size: Int, isRow: Boolean, f: Int => A): Vector[A] = {
+      _fromArray(Array.tabulate[A](size)(f), isRow)
+    }
+    def build[A:ClassTag](f: (A => Unit) => Unit): Vector[A] = build(true,f)
+    def build[A:ClassTag](isRow: Boolean = true, f: (A => Unit) => Unit): Vector[A] = {
+      val a = new ArrayBuffer[A]
+      f(a += )
+      _fromArray(a.toArray, isRow)
+    }
 
-    def flatten[A](x:Vector[Vector[A]]): Vector[A] = ???
+
+    def apply[A:ClassTag](size: Int, isRow: Boolean): Vector[A] = _fromArray(new Array[A](size),isRow)
+    def apply[A:ClassTag](x: A*): Vector[A] = Vector.fill(x.size, i => x(i))
+
+    def flatten[A:ClassTag](x:Vector[Vector[A]]): Vector[A] = Vector.build(p => x.foreach(y=>y.foreach(p(_))))
 
 
 /*
@@ -34,19 +59,34 @@ trait OptiLA extends DeliteApplication { this: OptiLAApplication =>
     def apply[A](xs: A*) = DenseVector[A](xs.map(e=>unit(e)): _*)
     def apply[A](xs: A*)(implicit o: Overloaded1) = DenseVector[A](xs: _*)
 */
-    def dense[A](len: Int, isRow: Boolean): DenseVector[A] = ???
-    def sparse[A](len: Int, isRow: Boolean): SparseVector[A] = ???
+    def dense[A:ClassTag](len: Int, isRow: Boolean): DenseVector[A] = Vector[A](len,isRow)
+    def sparse[A:ClassTag](len: Int, isRow: Boolean): SparseVector[A] = Vector[A](len,isRow) // TODO: sparse!
 
-    def ones(len: Int): Vector[Double] = ???
-    def onesf(len: Int): Vector[Float] = ???
-    def zeros(len: Int): Vector[Double] = ???
-    def zerosf(len: Int): Vector[Float] = ???
-    def rand(Alen: Int): Vector[Double] = ???
-    def randf(len: Int): Vector[Float] = ???
-    def range(start: Int, end: Int, stride: Int = unit(1), isRow: Boolean = unit(true)): RangeVector = ???
-    def uniform(start: Double, step_size: Double, end: Double, isRow: Boolean = unit(true)): Vector[Double] = ???
+    def ones(len: Int): Vector[Double] = Vector.fill(len, i => 1.0)
+    def onesf(len: Int): Vector[Float] = Vector.fill(len, i => 1.0f)
+    def zeros(len: Int): Vector[Double] = Vector.fill(len, i => 0.0)
+    def zerosf(len: Int): Vector[Float] = Vector.fill(len, i => 0.0f)
+    def rand(len: Int): Vector[Double] = Vector.fill(len, i => random[Double])
+    def randf(len: Int): Vector[Float] = Vector.fill(len, i => random[Float])
+    def range(start: Int, end: Int, stride: Int = 1, isRow: Boolean = true): RangeVector = {
+      val v = new RangeVector
+      v._isRow = isRow
+      v._data = Array.tabulate((end-start)/stride)(i => start+i*stride) //TODO: check length computation
+      v
+    }
+    def uniform(start: Double, step_size: Double, end: Double, isRow: Boolean = true): Vector[Double] = ???
   }
-  abstract class Vector[A] {
+  class Vector[A:ClassTag] {
+    var _data: Array[A] = _
+    var _isRow: Boolean = _
+
+
+    override def toString = "Vector("+_isRow+"; "+_data.mkString(",")+")"
+    override def equals(o: Any) = o match { case o: Vector[A] => _data.sameElements(o._data) case _ => false }
+
+
+
+    // -----
 
     // *** sparse ops
     def finish: SparseVector[A] = ???
@@ -71,36 +111,36 @@ trait OptiLA extends DeliteApplication { this: OptiLAApplication =>
     //def toLong(implicit conv: A => Rep[Long]) = map(e => conv(e))
     
     // accessors
-    def length: Int  = ???
-    def isRow: Boolean  = ???
-    def apply(n: Int): A  = ???
-    def apply(n: IndexVector): Vector[A]  = ???
-    def apply(n: Int,x:Int,y:Int): Vector[A]  = ??? // ???
+    def length: Int  = _data.length
+    def isRow: Boolean  = _isRow
+    def apply(n: Int): A  = _data(n)
+    def apply(n: IndexVector): Vector[A]  = Vector.fill(n.length, i=>this(n(i)))
+    def apply(n: Int*): Vector[A]  = Vector.fill(n.length, i=>this(n(i)))
     def isEmpty = length == unit(0)
     def first = apply(unit(0))
     def last = apply(length - unit(1))
     def indices = (unit(0)::length)
     def drop(count: Int) = slice(count, length)
     def take(count: Int) = slice(unit(0), count)
-    def slice(start: Int, end: Int): Vector[A]  = ???//= vector_slice[A,VA](x, start, end)
+    def slice(start: Int, end: Int): Vector[A]  = Vector.fill(end-start, i=>this(start+i))
     def contains(y: A): Boolean  = ???//= vector_contains(x,y)
     def distinct: Vector[A]  = ???//= vector_distinct[A,VA](x)  
     
     // general
-    def t: Vector[A]  = ???// TODO: move to type-system
-    def mt(): Vector[A] = ???
-    def Clone(): Vector[A]  = ???//= vector_clone[A,VA](x) 
-    def mutable(): Vector[A]  = ???//= vector_mutable_clone[A,VA](x)
-    def pprint(): Unit  = ???//= vector_pprint(x)
+    def t: Vector[A]  = Vector._fromArray(_data, !isRow)
+    def mt(): Vector[A] = t.mutable
+    def Clone(): Vector[A]  = Vector.fill(length, isRow, i=>this(i))
+    def mutable(): Vector[A]  = Clone
+    def pprint(): Unit = println(this)
     //def replicate(i: Int, j: Int): Rep[MA] = vector_repmat[A,MA](x,i,j)
     def replicate(i: Int, j: Int): DenseMatrix[A]  = ???//= vector_repmat[A](x,i,j)
-    def mkString(sep: String = unit("")): String  = ???//= vector_mkstring(x, sep)
+    def mkString(sep: String = unit("")): String  = _data.mkString(",")
     
     // data operations
     // TODO: these should probably be moved to another interface (MutableVector), analogously to MatrixBuildable. 
-    def update(n: Int, y: A): this.type = ???
-    def update(i: IndexVector, y: A): this.type = ???
-    def update(i: IndexVector, y: Vector[A]): this.type = ???
+    def update(n: Int, y: A): this.type = { _data(n) = y; this }
+    def update(i: IndexVector, y: A): this.type = { for (j <- 0 until i.length) _data(j) = y; this }
+    def update(i: IndexVector, y: Vector[A]): this.type = { for (j <- 0 until i.length) _data(j) = y(j); this }
     def :+(y: A): Vector[A] = {
       val out = mutable()
       out += y
@@ -167,7 +207,7 @@ trait OptiLA extends DeliteApplication { this: OptiLAApplication =>
     //def /=(y: Vector[A])(implicit a: Arith[A])  = ???//= vector_divideequals[A](x,y)
     def /=(y: A)(implicit a: Arith[A], o: Overloaded1): Unit  = ???//= vector_divideequals_scalar[A](x,y)
     
-    def sum(implicit a: Arith[A]): A  = ???//= vector_sum(x)
+    def sum(implicit a: Arith[A]): A  = reduce(a.plus(_,_))
     def abs(implicit a: Arith[A]): Vector[A]  = ???//= vector_abs[A,VA](x)
     def exp(implicit a: Arith[A]): Vector[A]  = ???//= vector_exp[A,VA](x)
     
@@ -182,16 +222,18 @@ trait OptiLA extends DeliteApplication { this: OptiLAApplication =>
     def :<(y: Vector[A])(implicit o: Ordering[A]): Vector[Boolean]  = ???//= zip(y) { (a,b) => a < b }    
     
     // bulk operations
-    def map[B](f: A => B): Vector[B]  = ???//= vector_map[A,B,V[B]](x,f)
+    def map[B:ClassTag](f: A => B): Vector[B]  = Vector.fill(length,isRow, i => f(this(i)))
     def mmap(f: A => A): this.type  = ???//= { vector_mmap(x,f); elem }
     def foreach(block: A => Rep[Unit]): Rep[Unit]  = ???//= vector_foreach(x, block)
     def zip[B,R](y: Vector[B])(f: (A,B) => R): Vector[R]  = ???//= vector_zipwith[A,B,R,V[R]](x,y,f)
     def mzip[B](y: Vector[B])(f: (A,B) => A): Vector[B]  = ???//= { vector_mzipwith(x,y,f); elem }
-    def reduce(f: (A,A) => A)(implicit a: Arith[A]): A  = ???//= vector_reduce(x,f)
+    def reduce(f: (A,A) => A)(implicit a: Arith[A]): A  = {
+      _data.reduceLeft(f)
+    }
     def filter(pred: A => Boolean): Vector[A]  = ???//= vector_filter[A,VA](x,pred)
     
     def find(pred: A => Boolean): IndexVector  = ???//= vector_find[A,V[Int]](x,pred)    
-    def count(pred: A => Boolean): Int  = ???//= vector_count(x, pred)
+    def count(pred: A => Boolean): Int  = map(x => if (pred(x)) 1 else 0).sum
     def flatMap[B](f: A => Vector[B]): Vector[B]  = ???//= vector_flatmap[A,B,V[B]](x,f)
     def partition(pred: A => Boolean): (Vector[A], Vector[A])   = ???//= vector_partition[A,VA](x,pred)
     def groupBy[K](pred: A => K): DenseVector[Vector[A]]  = ???//= vector_groupby[A,K,VA](x,pred)    
@@ -226,13 +268,13 @@ trait OptiLA extends DeliteApplication { this: OptiLAApplication =>
 
 
 
-  implicit def intVector2FloatVector(x: Vector[Int]): Vector[Float] = ???
-  implicit def intVector2DoubleVector(x: Vector[Int]): Vector[Double] = ???
-  implicit def floatVector2DoubleVector(x: Vector[Float]): Vector[Double] = ???
+  implicit def intVector2FloatVector(x: Vector[Int]): Vector[Float] = x.map(_.toFloat)
+  implicit def intVector2DoubleVector(x: Vector[Int]): Vector[Double] = x.map(_.toDouble)
+  implicit def floatVector2DoubleVector(x: Vector[Float]): Vector[Double] = x.map(_.toDouble)
 
-  implicit def intMatrix2FloatMatrix(x: Matrix[Int]): Matrix[Float] = ???
-  implicit def intMatrix2DoubleMatrix(x: Matrix[Int]): Matrix[Double] = ???
-  implicit def floatMatrix2DoubleMatrix(x: Matrix[Float]): Matrix[Double] = ???
+  implicit def intMatrix2FloatMatrix(x: Matrix[Int]): Matrix[Float] = x.map(_.toFloat)
+  implicit def intMatrix2DoubleMatrix(x: Matrix[Int]): Matrix[Double] = x.map(_.toDouble)
+  implicit def floatMatrix2DoubleMatrix(x: Matrix[Float]): Matrix[Double] = x.map(_.toDouble)
 
 
   implicit class int2VectorAdd(x: Int) {
@@ -264,7 +306,7 @@ trait OptiLA extends DeliteApplication { this: OptiLAApplication =>
 
 
   implicit class int2IndexVectorOps(x: Int) {
-    def ::(y:Int): RangeVector = Vector.range(x,y)
+    def ::(y:Int): RangeVector = Vector.range(y,x) // right assoc, so reverse order!
   }
 
   implicit class tupleRangeVectorOps1(x: (RangeVector,RangeVector)) {
@@ -278,13 +320,19 @@ trait OptiLA extends DeliteApplication { this: OptiLAApplication =>
   abstract class Wildcard
   object * extends Wildcard
 
-  trait Arith[A]
+  trait Arith[A] {
+    def zero: A
+    def plus(x: A, y: A): A
+  }
 
-  implicit def intArith: Arith[Int] = ???
-  implicit def floatArith: Arith[Float] = ???
-  implicit def doubleArith: Arith[Double] = ???
+  implicit def intArith: Arith[Int] = new Arith[Int] { def zero = 0; def plus(x: Int, y: Int) = x+y }
+  implicit def floatArith: Arith[Float] = new Arith[Float] { def zero = 0; def plus(x: Float, y: Float) = x+y }
+  implicit def doubleArith: Arith[Double] = new Arith[Double] { def zero = 0; def plus(x: Double, y: Double) = x+y }
 
-  implicit def vectorArith[A:Arith]: Arith[Vector[A]] = ???
+  implicit def vectorArith[A:Arith]: Arith[Vector[A]] = new Arith[Vector[A]] { 
+    def zero = ???; 
+    def plus(x: Vector[A], y: Vector[A]) = x+y 
+  }
 
 
   trait HasMinMax[A]
@@ -456,11 +504,11 @@ trait OptiLA extends DeliteApplication { this: OptiLAApplication =>
   class StreamCompanion extends MatrixCompanion {
     def apply[A](x: Int, y: Int)(f: (Int,Int) => A): Stream[A] = ???
   }
-  class Stream[A] extends Matrix[A] {
+  class Stream[A:ClassTag] extends Matrix[A] {
     def isPure: Boolean = ???
   }
 
-  class StreamRow[A] extends Vector[A] {
+  class StreamRow[A:ClassTag] extends Vector[A] {
   }
 
 
@@ -469,7 +517,13 @@ trait OptiLA extends DeliteApplication { this: OptiLAApplication =>
 
 
 
-  def random[A]: A = ???
+  def random[A:ClassTag]: A = {
+    (implicitly[ClassTag[A]].toString match {
+      case "Double" => Global.randRef.nextDouble
+      case "Float" => Global.randRef.nextFloat
+      case _ => ???
+    }).asInstanceOf[A]
+  }
   def random(k:Int): Int = ???
   def random(k:IndexVector): Int = ??? // not sure about signature
 
